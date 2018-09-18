@@ -176,18 +176,10 @@ staging-connect: staging-connect-heroku
 logs: logs-heroku
 logs-staging: logs-staging-heroku
 ### Dependency Management
-git-hash:
-	git rev-parse --verify HEAD
 install-ppp:
 	python3 -m pip install \
 	  --no-cache-dir \
 	  --upgrade odk-ppp
-install-regular:
-	pip install -r requirements-unlocked.txt; \
-	pip freeze > requirements.txt
-upgrade:
-	pip install -r requirements-unlocked.txt --upgrade; \
-	pip freeze > requirements.txt
 upgrade-ppp:
 	python3 -m pip uninstall odk-ppp; \
 	make install-ppp; \
@@ -198,18 +190,34 @@ upgrade-ppp:
 	echo "Warning: Sometimes the cache is slow to update. You may need to run \
 	this command twice or more to truly update to the most recent version of \
 	ppp, if it was very recently uploaded to PyPi."
+update-ppp: upgrade-ppp
+ppp-update: upgrade-ppp
+ppp-upgrade: upgrade-ppp
+# TODO: Upgrade pmix?
+
+git-hash:
+	git rev-parse --verify HEAD
+#install-regular:
 install:
-	make install-ppp; \
-	make install-regular
+	pip install -r requirements-unlocked.txt --no-cache-dir; \
+	pip freeze > requirements.txt
+upgrade-once:
+	pip install -r requirements-unlocked.txt --no-cache-dir --upgrade; \
+	pip freeze > requirements.txt
+upgrade:
+	make upgrade-once; \
+	make upgrade-once
+#install:
+#	make install-ppp; \
+#	make install-pmix; \
+#	make install-regular
 uninstall:
 	workon ppp-web; \
 	bash -c "pip uninstall -y -r <(pip freeze)"
 reinstall:
 	make uninstall; \
-	make install
-update-ppp: upgrade-ppp
-ppp-update: upgrade-ppp
-ppp-upgrade: upgrade-ppp
+	make install; \
+	make upgrade
 uninstall-everything: uninstall
 pip-uninstall-everything: uninstall
 pip-reinstall: reinstall
